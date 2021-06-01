@@ -1,0 +1,506 @@
+
+  
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+class Element {
+
+public:
+    sf::Sprite sprite;
+	sf::RectangleShape shape;
+    std::string texture_name{};
+    sf::Texture texture{};
+	
+private:
+	bool is_moveable{};
+	float x_left_in{};
+    float x_right_in{};
+	
+    float y_top_in{};
+    float y_bot_in{};
+	
+    float x_mid_in{};
+    float y_mid_in{};
+	
+    float x_length_in{};
+    float y_height_in{};
+
+public:
+    //function prototype
+	void drawMe(sf::RenderWindow appWindow);
+	void setIsMoveable(bool);
+	bool getIsMoveable();
+	void Element::setNewPosition(float x_position, float y_position);
+	float x_lenght();
+	float y_lenght();
+    float x_right();
+    float x_left();
+    float y_top();
+    float y_bot();
+    float x_mid();
+    float y_mid();
+	
+
+    Element(std::string texture_name_in, float start_position_x_in, float start_position_y_in, bool is_moveable = false)
+        :is_moveable{is_moveable}
+        {
+			if(texture_name_in == 'None'){
+				//create shape
+				shape = sf::RectangleShape (sf::Vector2f(10f, 10f));
+				shape.setPosition(start_position_x_in, start_position_y_in);
+				shape.setFillColor(sf::Color::Blue);
+				x_length_in = shape.getPoint(2).x ;
+				y_height_in = shape.getPoint(2).y ;
+				x_mid_in = shape.getOrigin().x;
+				y_mid_in = shape.getOrigin().y;
+			}else{
+				//create sprite
+				texture_name =texture_name_in;
+				texture.loadFromFile(texture_name); // true gdy wczytalo, false jak blad
+				sprite.setTexture(texture);
+				x_length_in = sprite.getTexture()->getSize().x * sprite.getScale().x ;
+				y_height_in = sprite.getTexture()->getSize().y * sprite.getScale().y ;
+				x_mid_in = sprite.getOrigin().x;
+				y_mid_in = sprite.getOrigin().y;
+			}       
+        
+
+        }
+ 
+   
+}; 
+
+void drawMe(sf::RenderWindow appWindow){
+	
+	appWindow.draw(this)
+	}
+void Element::setIsMoveable(bool is_moveable){
+	is_moveable = is_moveable;
+}
+bool Element::getIsMoveable(){
+	return is_moveable;
+}
+void Element::setNewPosition(float x_position, float y_position){
+	if (this->sprite){return sprite.setPosition(x_position, y_position);
+	if (this->shape){return shape.setPosition(x_position, y_position);
+}
+float Element::x_lenght(){
+	return x_length_in;
+}
+float Element::y_height(){
+	return y_height_in;
+}
+float Element::x_right() {
+	if (this->sprite){return sprite.getPosition().x + x_length_in};
+	if (this->shape){return shape.getPosition().x + x_length_in};
+}
+float Element::x_left() {
+	if (this->sprite){return sprite.getPosition().x};
+	if (this->shape){return shape.getPosition().x};
+}
+float Element::y_top() {
+	if (this->sprite){return sprite.getPosition().y};
+	if (this->shape){return shape.getPosition().y};
+}
+float Element::y_bot() {
+	if (this->sprite){return sprite.getPosition().y+ y_height_in};
+	if (this->shape){return shape.getPosition().y+ y_height_in};
+}
+float Element::x_mid() {
+	if (this->sprite){return sprite.getPosition().x + x_length_in/2};
+	if (this->shape){return shape.getPosition().x + x_length_in/2};
+}
+float Element::y_mid() {
+	if (this->sprite){return sprite.getPosition().y+ y_height_in/2};
+	if (this->shape){return shape.getPosition().y+ y_height_in/2};
+}
+
+class Ball : public Element {
+public:
+    float move_on_y{ 0.03 };
+    float* move_y{ &move_on_y };
+    float move_on_x{ 0.0 };
+    float* move_x{ &move_on_x };
+    float kierunek{ 0.1 };
+    float* param_kierunku{ &kierunek };
+    
+    Ball(std::string texture_name_in, float start_position_x_in, float start_position_y_in) 
+		:Element(texture_name_in,start_position_x_in,start_position_y_in, bool is_moveable = true)
+    {}
+};
+class Pad : public Element{
+public:
+	//prototype functions
+	pad_moves_x_y(float pad_move_speed, sf::RenderWindow* oknoAplikacji);
+	void Pad::change_ball_direction();
+	Pad(std::string texture_name_in, float start_position_x_in, float start_position_y_in) :Element(texture_name_in,start_position_x_in,start_position_y_in)
+    {}
+	
+}
+void Pad::pad_moves_x_y(float pad_move_speed, sf::RenderWindow* oknoAplikacji){	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		{sprite.move(0, -pad_move_speed);}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{sprite.move(0, +pad_move_speed);}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+		if ((pad.x_right+pad_move_speed) > oknoAplikacji->getSize().x) {}
+		else {sprite.move(+pad_move_speed, 0); }
+	}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+		if (pad.x_left - (pad_move_speed)) < 0){}
+		else {sprite.move(-pad_move_speed, 0);}
+	}}
+void Pad::change_ball_direction(Ball *ball){
+	ball->x_mid();
+	float pozycja_srodka_pilki{ ball->x_mid() };
+	float pozycja_srodka_pad{ this->x_mid()}; 
+	float pozycja_pilki_od_srodka_pada{ abs(pozycja_srodka_pad - pozycja_srodka_pilki) };
+
+	if (pozycja_srodka_pilki > pozycja_srodka_pad) {
+	// z prawej
+		ball->param_kierunku = ball->param_kierunku + (pozycja_pilki_od_srodka_pada * 2) / 100;
+	}
+	else {
+	//z lewej
+		ball->param_kierunku = -(ball->param_kierunku + (pozycja_pilki_od_srodka_pada * 2) / 100);
+	}
+}
+class Box: public Element{
+private:
+	bool destroy{false};
+	int point{10};
+	int his_to_destroy{1};
+public:
+	Box(sf::Vector2f coords) 
+		:Element("None",coords.x,coords.y,)
+    {}
+	//function prototype
+	void setDestroy(bool set_to);
+	int recive_point();
+	
+	void setDestroy(bool set_to){
+		destroy = set_to;
+	}
+	int recive_point(){
+		return point;
+	}
+}
+
+//function prototype
+void odbicie(sf::Sprite* spr_ball, sf::Sprite* spr_pad, float* move_x, float* move_y, float* param_kierunku);
+void odbicie(sf::Sprite* spr_ball, sf::Shape* spr_pad, float* move_x, float* move_y, float* param_kierunku);
+
+void pod_moves_x_y(sf::Sprite* spr_pod, float pod_move_speed, sf::RenderWindow* oknoAplikacji);
+vector<Box> prepare_boxes(sf::RenderWindow* oknoAplikacji,integer number_box_in_row, integer number_of_rows);
+bool czy_zderzenie(Ball* ball, Element* wall);
+bool czy_zderzenie(Ball* ball,Pad* pad);
+bool czy_zderzenie(Ball* ball,Box* box);
+void reflect(Ball* ball,Box* box, float* move_x, float* move_y, float* param_kierunku);	
+
+//functions--------------------------------------------------------------
+vector<Box> prepare_boxes(sf::RenderWindow* oknoAplikacji,integer number_box_in_row, integer number_of_rows){
+	//size of box
+	float offset_x_from_window_border{20.0};
+	float box_y_value {15.0};
+	float box_x_wide {(oknoAplikacji->oknoAplikacji->getSize().x-offset_x_from_window_border)/number_box_in_row};
+	vector<Box> box_vector{};
+	
+	
+	sf::Vector2f start_position {offset_x_from_window_border/2,offset_x_from_window_border/2};
+	for(float y=0,y<(number_of_rows),++y){
+		for(float x=0,x<(number_box_in_row),++x){
+			//create box on position
+			box_vector.push(new *Box(start_position)); // ???? dobrze? dorobic parametr punku, zrobic parametr kasowania
+			start_position.x +=box_x_wide;
+		}	
+		start_position.y +=box_y_value;
+	}
+	return box_vector;
+}
+
+bool czy_zderzenie(Ball* ball, Element* wall){	
+	if (
+        ((ball->x_right >= wall->x_left && ball->x_right <= wall->x_right) || (ball->x_left < wall->x_right && ball->x_left >= wall->x_left))
+        &&
+        ((ball->y_top <= wall->y_bot && ball->y_top >= wall->y_top) || (ball->y_bot >= wall->y_top && ball->y_bot <= wall->y_bot))
+        )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }	
+}
+
+bool czy_zderzenie(Ball* ball, Pad* pad){	
+	if (
+        ((ball->x_right >= pad->x_left && ball->x_right <= pad->x_right) || (ball->x_left < pad->x_right && ball->x_left >= pad->x_left))
+        &&
+        ((ball->y_top <= pad->y_bot && ball->y_top >= pad->y_top) || (ball->y_bot >= pad->y_top && ball->y_bot <= pad->y_bot))
+        )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }	
+}
+
+bool czy_zderzenie(Ball* ball, Box* box){	
+	if (
+        ((ball->x_right >= box->x_left && ball->x_right <= box->x_right) || (ball->x_left < box->x_right && ball->x_left >= box->x_left))
+        &&
+        ((ball->y_top <= box->y_bot && ball->y_top >= box->y_top) || (ball->y_bot >= box->y_top && ball->y_bot <= box->y_bot))
+        )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }	
+}
+	
+void reflect(Ball* ball,Box* box, float* move_x, float* move_y, float* param_kierunku){
+	char out{};
+	
+	//hit direction
+	//x .|
+	if (ball->x_right >= box->x_left && ((abs(ball->x_right - box->x_left)) < 2) && ((ball->y_mid >= box->y_top) && (ball->y_mid <= box->y_bot)))
+    {
+        std::cout << "zderzenie x z lewej .|" << std::endl
+        std::cout << "weszla w sciane na:" << ba
+		ll->x_right << " - " << box->x_left << std::endl;
+        ball->sprite.move(-1 - (ball->x_right - box->x_left), 0);
+        std::cout << "po wyjeciu" << ball->sprite.getPosition().x << std::endl;
+        out = 'x';
+    }
+	
+	//x |.
+	if (ball->x_left <= box->x_right && ((abs(ball->x_left - box->x_right)) < 2) && ((box->y_mid >= y_pad_top) && (box->y_mid <= y_pad_bot)))
+    {
+        std::cout << "zderzenie x z prawejb |." << std::endl;
+        std::cout << "weszla w sciane lewa na:" << ball->x_left - box->x_right << std::endl;
+
+        ball->sprite.move(+1 + abs(ball->x_left - box->x_right), 0);
+        std::cout << "po wyjeciu" << ball->sprite.getPosition().x <<  std::endl;
+        out = 'x';
+    }
+	
+	//y
+	if ((abs(ball->y_top - box->y_bot)) < 1 && ((ball->x_mid >= box->x_left) && (ball->x_mid <= box->x_right)))
+    {
+        ball->sprite.move(0, 1 + abs(ball->y_top - box->y_bot));
+        out = 'y';
+    }
+	
+	//y
+    if ((abs(ball->y_bot - box->y_top)) < 1 && ((ball->x_mid >= box->x_left) && (ball->x_mid <= box->x_right)))
+    {
+        ball->sprite.move(0, -1 - abs(ball->y_bot - box->y_top));
+        out = 'y';
+    }
+	
+	// switch ball direction depend on from where it came
+    if (out == 'x' || out == 'y') {
+        if (out == 'x') {
+            if (abs(*move_y) > abs(*move_x))
+            {
+
+                (*param_kierunku) *= -1;
+            }
+            else
+            {
+                (*move_x) *= -1;
+            }
+        }
+        else
+        {
+            if (abs(*move_y) > abs(*move_x))
+            {
+                (*move_y) *= -1;
+            }
+            else
+            {
+                (*param_kierunku) *= -1;
+            }
+        }
+    }
+    else
+    {
+        std::cout << "error on zderzenie_x_czy_y" << std::endl;
+    }
+
+}	
+	
+
+//--------------------------------------------------------------------------------------
+
+
+int main()
+{
+	vector<sf::Element> static_elements{};
+	vector<sf::Box> box_elements{};
+	int user_points{0};
+    sf::RenderWindow oknoAplikacji(sf::VideoMode(850, 600, 32), "SFML - arkanoid");
+
+    sf::Vector2u wymiary_okna = oknoAplikacji.getSize();    
+    
+    Ball ball("ball.bmp", 0,0);
+	ball.setNewPosition(wymiary_okna.x / 2 - ball.x_lenght, wymiary_okna.y / 2);
+    sf::Sprite spr_ball{ ball.sprite };
+	
+	Pad pad("kreska.bmp",0,0);
+	pad.setNewPosition(wymiary_okna.x / 2 -  pod.x_lenght  / 2, 400);
+	sf::Sprite spr_pad {pod.sprite};
+	
+    Element prawa_sciana("sciana.bmp", wymiary_okna.x - 5, 0);	
+    Element lewa_sciana("sciana.bmp", 0 + 5, 0);
+    Element top_sciana("sciana_top.bmp", 20, 0 + 5);
+    Element bot_sciana("sciana_top.bmp", 0, wymiary_okna.y - 5);
+	
+	//Box box1("None",0,0)
+	
+    sf::RectangleShape box(sf::Vector2f(350.0f, 130.0f));
+    box.setPosition(150, 100);
+    box.setFillColor(sf::Color::Blue);
+	
+	//static_elements.push(pod.sprite); - this os other class 
+	static_elements.push(&prawa_sciana);
+	static_elements.push(&lewa_sciana);
+	static_elements.push(&top_sciana);
+	static_elements.push(&bot_sciana);
+	
+
+    //float sciana_grubosc {spr_sciana_left->getTexture()->getSize().x * spr_sciana_left->getScale().x}; //5
+    //float sciana_dlugosc {spr_sciana_left->getTexture()->getSize().y * spr_sciana_left->getScale().y};  //800 ?
+
+    //parametry gry
+    float cienkosc_sciany{ 5 };
+    float pod_move_speed{ 15.0 };
+    float pod_grubosc{ 20.0 };
+    float odl_od_ramki_dolnej{ 10 };
+    int temp_x{ 0 };
+
+    float move_on_y{ 0.03 };
+    float* ptr_move_y{ &move_on_y };
+
+    float move_on_x{ 0.0 };
+    float* ptr_move_x{ &move_on_x };
+
+    float kierunek{ 0.1 };
+    float* ptr_param_kierunku{ &kierunek };
+
+   
+
+    while (oknoAplikacji.isOpen()) // petla glowna
+    {
+        sf::Event zdarzenie;
+
+        //event loop
+        while (oknoAplikacji.pollEvent(zdarzenie))
+        {
+            //exit
+            if (zdarzenie.type == sf::Event::Closed)
+            {
+                oknoAplikacji.close();
+            }
+            if (zdarzenie.type == sf::Event::KeyPressed && zdarzenie.key.code == sf::Keyboard::Escape)
+            {
+                oknoAplikacji.close();
+            }
+            //pad moves
+			pad.pod_moves_x_y(pod_move_speed, &oknoAplikacji);           
+        }
+        // event loop  end
+
+        //ruch pod katem
+        {
+            if (temp_x == 10) {
+                if (abs(*ptr_move_y) > abs(*ptr_move_x))
+                {
+                    spr_ball.move(*ptr_move_x + *ptr_param_kierunku, *ptr_move_y);
+                    temp_x = 0;
+                }
+                else {
+                    spr_ball.move(*ptr_move_x, *ptr_move_y + *ptr_param_kierunku);
+                    temp_x = 0;
+                }
+            }
+            else {
+                spr_ball.move(*ptr_move_x, *ptr_move_y);
+            }
+            ++temp_x;
+        }
+
+		//is hitting a some box?
+		
+        for(auto some_box:box_elements) // ball box
+		{
+			if (czy_zderzenie(&ball, &box) == true){ //todo czy_zderzenie(Ball,Box);
+				//point
+				user_points += box->point;
+				
+				//reflect
+				reflect(&ball,&some_box, ptr_move_x, ptr_move_y, ptr_param_kierunku);	
+				
+				//destruction
+				//todo
+			}			
+		}	
+		
+		//is hitting a pad 
+        if (czy_zderzenie(&ball, &pad) == true)
+        {
+            odbicie(&spr_ball, &spr_pad, ptr_move_x, ptr_move_y, ptr_param_kierunku);
+			pad.change_ball_direction(&ball)          
+        }
+		
+		//is hitting a wall ?
+        for(auto some_wall:static_elements) //elements vector
+		{
+			if (czy_zderzenie(&ball, &some_wall) == true){
+				odbicie(&spr_ball, &some_wall, ptr_move_x, ptr_move_y, ptr_param_kierunku);
+			}			
+		}	
+	
+
+        // ball outside frame
+
+        if (((ball.x_right) >= wymiary_okna.y) || (ball.y_left <= 0)) {
+            *ptr_move_y = 0;
+            std::cout << "przegrales" << std::endl;
+            break;
+        }
+
+        //std::cout<<"ball x:"<<spr_ball.getPosition().x<<" y: " <<spr_ball.getPosition().y <<"sciana x:"<<spr_sciana_right.getPosition().x<<" y: " <<spr_sciana_right.getPosition().y <<std::endl;
+
+       //---------------------------
+
+        oknoAplikacji.clear();
+		 for(auto some_box:box_elements){some_box.drawMe();}
+        //oknoAplikacji.draw(box);
+        oknoAplikacji.draw(spr_sciana_left);
+        oknoAplikacji.draw(spr_sciana_right);
+        oknoAplikacji.draw(spr_sciana_top);
+        oknoAplikacji.draw(spr_sciana_bot);
+        oknoAplikacji.draw(spr_ball);
+        oknoAplikacji.draw(spr_pad);
+        oknoAplikacji.display();
+    }
+
+
+    return 0;
+}
+
+
+
